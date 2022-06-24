@@ -11,9 +11,9 @@ const main = async() => {
     console.log("Minted NFT #1");
 
     //Mint another NFT just for fun
-    txn = await nftContract.makeWhiskeyNFT();
-    await txn.wait()
-    console.log("Minted NFT #2");
+    // txn = await nftContract.makeWhiskeyNFT();
+    // await txn.wait()
+    // console.log("Minted NFT #2");
 };
 
 const runMain = async () => {
