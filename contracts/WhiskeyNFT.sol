@@ -90,7 +90,16 @@ contract WhiskeyNFT is ERC721URIStorage {
             );
 
         console.log("\n-----------------");
-        console.log(finalTokenUri);
+        console.log("raw data tokenURI:", finalTokenUri);
+        console.log(" ");
+        console.log("NFT Preview:");
+        console.log(string(
+        abi.encodePacked(
+            "https://nftpreview.0xdev.codes/?code=",
+            finalTokenUri
+            )
+        )
+    );
         console.log("-----------------\n");
 
         //mint the NFT to the sender using msg.sender
