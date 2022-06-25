@@ -6,6 +6,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
+//import the helper functions that converts svg and json to base64
+import { Base64 } from "./libraries/Base64.sol";
+
 contract WhiskeyNFT is ERC721URIStorage {
     //inherited from OpenZeppelin to keep track of tokenIds
     using Counters for Counters.Counter;
@@ -59,21 +62,45 @@ contract WhiskeyNFT is ERC721URIStorage {
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
+        string memory combinedWord = string(abi.encodePacked(first, second, third));
 
         //concatenate it all together and close the <text> and <svg> tags
         string memory finalSvg = string(abi.encodePacked(baseSvg, first, second, third, "</text></svg>"));
+
+        //format and map the JSON metadata and base64 encode it
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name": "',
+                        //set the title of the nft to that of the randomly generated word
+                        combinedWord,
+                        '", "description": "It\'s hip to be square", "image": "data:image/svg+xml;base64',
+                        //Add data:image/svg+xml;base64 and then append our base64 encode our svg
+                        Base64.encode(bytes(finalSvg)),
+                        '"}'
+                    )
+                )
+            )
+        );
+
+        //prepend data:application/json;base64 to json
+        string memory finalTokenUri = string(
+            abi.encodePacked("data:application/json;base64,", json)
+            );
+
         console.log("\n-----------------");
-        console.log(finalSvg);
+        console.log(finalTokenUri);
         console.log("-----------------\n");
 
         //mint the NFT to the sender using msg.sender
         _safeMint(msg.sender, newItemId);
 
         //set the NFTs data
-        _setTokenURI(newItemId, "data:application/json;base64,ewogICAgIm5hbWUiOiAiRXBpY0xvcmRIYW1idXJnZXIiLAogICAgImRlc2NyaXB0aW9uIjogIkFuIE5GVCBmcm9tIHRoZSBoaWdobHkgYWNjbGFpbWVkIHNxdWFyZSBjb2xsZWN0aW9uIiwKICAgICJpbWFnZSI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSEJ5WlhObGNuWmxRWE53WldOMFVtRjBhVzg5SW5oTmFXNVpUV2x1SUcxbFpYUWlJSFpwWlhkQ2IzZzlJakFnTUNBek5UQWdNelV3SWo0S0lDQWdJRHh6ZEhsc1pUNHVZbUZ6WlNCN0lHWnBiR3c2SUhkb2FYUmxPeUJtYjI1MExXWmhiV2xzZVRvZ2MyVnlhV1k3SUdadmJuUXRjMmw2WlRvZ01UUndlRHNnZlR3dmMzUjViR1UrQ2lBZ0lDQThjbVZqZENCM2FXUjBhRDBpTVRBd0pTSWdhR1ZwWjJoMFBTSXhNREFsSWlCbWFXeHNQU0ppYkdGamF5SWdMejRLSUNBZ0lEeDBaWGgwSUhnOUlqVXdKU0lnZVQwaU5UQWxJaUJqYkdGemN6MGlZbUZ6WlNJZ1pHOXRhVzVoYm5RdFltRnpaV3hwYm1VOUltMXBaR1JzWlNJZ2RHVjRkQzFoYm1Ob2IzSTlJbTFwWkdSc1pTSStSWEJwWTB4dmNtUklZVzFpZFhKblpYSThMM1JsZUhRK0Nqd3ZjM1puUGc9PSIsCiAgICAiYXR0cmlidXRlcyI6IFsKICAgICAgewogICAgICAgICJ0cmFpdF90eXBlIjogIkJhY2tncm91bmQiLAogICAgICAgICJ2YWx1ZSI6ICJCbGFjayIKICAgICAgfSwKICAgICAgewogICAgICAgICJ0cmFpdF90eXBlIjogIlRleHQgY29sb3IiLAogICAgICAgICJ2YWx1ZSI6ICJXaGl0ZSIKICAgICAgfQogICAgXQp9Cg==");
-        console.log("An NFT w/ ID %s has been minted to %s", newItemId, msg.sender);
+        _setTokenURI(newItemId, finalTokenUri);
 
-        //Increment th counter for when the next NFT is minted
+        //Increment the counter for when the next NFT is minted
         _tokenIds.increment();
+        console.log("An NFT w/ ID %s has been minted to %s", newItemId, msg.sender);
     }
 }
