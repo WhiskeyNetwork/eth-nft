@@ -18,11 +18,16 @@ contract WhiskeyNFT is ERC721URIStorage {
   // This is our SVG code. All we need to change is the word that's displayed. Everything else stays the same.
   // So, we make a baseSvg variable here that all our NFTs can use
     string baseSvg = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
+    //TODO: change to rotating color background
 
     //Create arrays from which our randomness will be derived
     string[] firstWords = ["DOG", "GOAT", "DONKEY", "CAT", "PORCUPINE", "RHINOCEROS", "EMU", "PANDA", "SHEEP", "GIRAFFE", "LION", "MARMOSET", "MEERKAT", "MACAW", "RATTLESNAKE", "ARMADILLO"];
     string[] secondWords = ["FOOTBALL", "SOCCER", "HOCKEY", "LACROSSE", "BASEBALL", "BASKETBALL", "RUNNING", "CYCLING", "BOXING", "RUGBY", "SOFTBALL", "RACING", "ARMWRESTLING", "DISCUS", "FRISBEE", "PICKLEBALL"];
     string[] thirdWords = ["BLUES", "ROCK", "SWING", "EDM", "COUNTRY", "OPERA", "HIPHOP", "METAL", "RAP", "KPOP", "AFROBEAT", "FOLK", "FLAMENCO", "ACAPELLA", "BLUEGRASS", "DISCO"];
+
+    event NewWhiskeyNFTMinted(address sender, uint256 tokenId);
+
+    //TODO: Limit count of NFT minted
 
     //pass the name of our NFTs token and its symbol
     constructor() ERC721 ("WhiskeyNFT", "DRINK") {
@@ -112,5 +117,7 @@ contract WhiskeyNFT is ERC721URIStorage {
         //Increment the counter for when the next NFT is minted
         _tokenIds.increment();
         console.log("An NFT w/ ID %s has been minted to %s", newItemId, msg.sender);
+        emit NewWhiskeyNFTMinted(msg.sender, newItemId);
+        //emit sends the transaction event to be read by the frontend
     }
 }
